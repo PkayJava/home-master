@@ -19,7 +19,7 @@ public class AstronomyTask implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AstronomyTask.class);
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("yyyy/MM/dd");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd");
 
     private final CloseableHttpClient client;
 
@@ -42,7 +42,7 @@ public class AstronomyTask implements Runnable {
 
         File tomorrowFile = new File(tempWorkspace, FORMATTER.print(tomorrow) + ".json");
         if (!tomorrowFile.exists()) {
-            queryData(this.client, "477599c7c931454abffc0c86eac6687e", "Phnom Penh", tomorrow, tempWorkspace);
+            queryData(this.client, this.apiKey, this.location, tomorrow, tempWorkspace);
         }
 
     }

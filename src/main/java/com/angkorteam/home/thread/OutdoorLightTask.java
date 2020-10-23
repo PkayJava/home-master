@@ -20,7 +20,7 @@ public class OutdoorLightTask implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OutdoorLightTask.class);
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("yyyy/MM/dd");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd");
 
     private final Gson gson;
 
