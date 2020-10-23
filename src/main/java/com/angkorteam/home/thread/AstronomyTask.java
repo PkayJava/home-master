@@ -44,20 +44,28 @@ public class AstronomyTask implements Runnable {
         if (!tomorrowFile.exists()) {
             queryData(this.client, this.apiKey, this.location, tomorrow, tempWorkspace);
         }
-
     }
 
     public static void queryData(CloseableHttpClient client, String apiKey, String location, LocalDate date, File outputFolder) {
+        File mockFile = new File("conf/astronomy-mock.json");
         File dateFile = new File(outputFolder, FORMATTER.print(date) + ".json");
-        RequestBuilder requestBuilder = RequestBuilder.create("GET");
-        requestBuilder.setUri("https://api.ipgeolocation.io/astronomy");
-        requestBuilder.addParameter("apiKey", apiKey);
-        requestBuilder.addParameter("location", location);
-        requestBuilder.addParameter("date", FORMATTER.print(date));
-        try (CloseableHttpResponse response = client.execute(requestBuilder.build())) {
-            FileUtils.writeStringToFile(dateFile, EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            LOGGER.info(e.getMessage());
+        if (mockFile.exists()) {
+            try {
+                FileUtils.copyFile(mockFile, dateFile);
+            } catch (IOException e) {
+                LOGGER.info(e.getMessage());
+            }
+        } else {
+            RequestBuilder requestBuilder = RequestBuilder.create("GET");
+            requestBuilder.setUri("https://api.ipgeolocation.io/astronomy");
+            requestBuilder.addParameter("apiKey", apiKey);
+            requestBuilder.addParameter("location", location);
+            requestBuilder.addParameter("date", FORMATTER.print(date));
+            try (CloseableHttpResponse response = client.execute(requestBuilder.build())) {
+                FileUtils.writeStringToFile(dateFile, EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                LOGGER.info(e.getMessage());
+            }
         }
     }
 }

@@ -87,7 +87,10 @@ public class OutdoorLightTask implements Runnable {
                     // offlight
                 } else {
                     // onlight
+
                 }
+
+
             } catch (IOException e) {
                 LOGGER.info(e.getMessage());
             }

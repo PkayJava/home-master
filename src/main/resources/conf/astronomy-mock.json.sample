@@ -1,0 +1,24 @@
+{
+  "location": {
+    "location": "Phnom Penh",
+    "latitude": 11.568271,
+    "longitude": 104.9224426
+  },
+  "date": "2020-10-24",
+  "current_time": "06:35:27.437",
+  "sunrise": "05:50",
+  "sunset": "17:38",
+  "sun_status": "-",
+  "solar_noon": "11:44",
+  "day_length": "11:48",
+  "sun_altitude": 9.851545662323797,
+  "sun_distance": 1.488335512482464E8,
+  "sun_azimuth": 103.99310044632614,
+  "moonrise": "12:08",
+  "moonset": "23:52",
+  "moon_status": "-",
+  "moon_altitude": -70.8692083527405,
+  "moon_distance": 379667.27387839527,
+  "moon_azimuth": 133.10621892403992,
+  "moon_parallactic_angle": -77.13739957251568
+}
