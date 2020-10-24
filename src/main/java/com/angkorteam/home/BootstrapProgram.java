@@ -1,6 +1,7 @@
 package com.angkorteam.home;
 
 import com.angkorteam.home.thread.AstronomyTask;
+import com.angkorteam.home.thread.OutdoorLightTask;
 import com.angkorteam.home.thread.PhilipsHueTask;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
@@ -63,6 +64,8 @@ public class BootstrapProgram implements LifecycleListener {
                         PhilipsHueTask.queryLight(this.client, this.hub, this.username, tempWorkspace);
                     }
                     this.executor.scheduleWithFixedDelay(new PhilipsHueTask(this.client, this.hub, this.username), 1, 1, TimeUnit.MINUTES);
+
+                    this.executor.scheduleWithFixedDelay(new OutdoorLightTask(this.client, this.hub, this.username), 1, 1, TimeUnit.SECONDS);
 
                     LOGGER.info("INITIALIZED");
                 } else if (event.getLifecycle().getState() == LifecycleState.STARTING) {
