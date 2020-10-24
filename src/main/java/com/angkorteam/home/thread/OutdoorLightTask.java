@@ -109,6 +109,8 @@ public class OutdoorLightTask implements Runnable {
                     hasMoonset = true;
                 }
 
+                LOGGER.info("currentTime {} sunriseTime {} sunsetTime {}", currentTime, sunriseTime, sunsetTime);
+
                 for (Map.Entry<String, Light> linker : lights.entrySet()) {
                     String id = linker.getKey();
                     Light light = linker.getValue();
