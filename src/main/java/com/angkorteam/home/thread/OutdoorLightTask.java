@@ -185,8 +185,6 @@ public class OutdoorLightTask implements Runnable {
         requestBuilder.setHeader("content-type", "application/json");
         requestBuilder.setEntity(entityBuilder.build());
 
-        System.out.println(requestBuilder.getUri());
-
         try (CloseableHttpResponse response = client.execute(requestBuilder.build())) {
             EntityUtils.consume(response.getEntity());
         } catch (IOException e) {
