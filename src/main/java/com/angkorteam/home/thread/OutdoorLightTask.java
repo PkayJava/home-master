@@ -128,8 +128,9 @@ public class OutdoorLightTask implements Runnable {
                                     Map<String, Object> params = new HashMap<>();
                                     params.put("on", true);
                                     params.put("bri", bri);
+                                    LOGGER.info("bri {}", bri);
                                     params.put("xy", xy(1.0f, 1.0f, 1.0f));
-                                    turnOn(this.gson, this.client, this.hub, this.username, id, params);
+//                                    turnOn(this.gson, this.client, this.hub, this.username, id, params);
                                 }
                             }
                             break;
