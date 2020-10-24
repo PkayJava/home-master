@@ -119,7 +119,11 @@ public class OutdoorLightTask implements Runnable {
                             if (currentTime > sunriseTime && currentTime < sunsetTime) {
                                 turnOff(this.gson, this.client, this.hub, this.username, id);
                             } else {
-                                turnOn(this.gson, this.client, this.hub, this.username, id);
+                                Map<String, Object> params = new HashMap<>();
+                                params.put("on", true);
+                                params.put("bri", 50);
+                                params.put("xy", xy(1.0f, 1.0f, 1.0f));
+                                turnOn(this.gson, this.client, this.hub, this.username, id, params);
                             }
                             break;
                         }
@@ -131,20 +135,23 @@ public class OutdoorLightTask implements Runnable {
         }
     }
 
-    public static void turnOn(Gson gson, CloseableHttpClient client, String hub, String username, String light) {
-        Map<String, Object> entity = new HashMap<>();
-        entity.put("on", true);
-        entity.put("sat", 254);
-        entity.put("bri", 254);
-        entity.put("hue", 1000);
+    public static float[] xy(float red, float green, float blue) {
+        float X = red * 0.649926f + green * 0.103455f + blue * 0.197109f;
+        float Y = red * 0.234327f + green * 0.743075f + blue * 0.022598f;
+        float Z = red * 0.0000000f + green * 0.053077f + blue * 1.035763f;
+        float x = X / (X + Y + Z);
+        float y = Y / (X + Y + Z);
+        return new float[]{x, y};
+    }
 
+    public static void turnOn(Gson gson, CloseableHttpClient client, String hub, String username, String light, Map<String, Object> params) {
         EntityBuilder entityBuilder = EntityBuilder.create();
         entityBuilder.setContentEncoding(StandardCharsets.UTF_8.name());
         entityBuilder.setContentType(ContentType.APPLICATION_JSON);
-        entityBuilder.setText(gson.toJson(entity));
+        entityBuilder.setText(gson.toJson(params));
 
         RequestBuilder requestBuilder = RequestBuilder.create("PUT");
-        requestBuilder.setUri("http://" + hub + "/api/" + username + "/lights/" + light);
+        requestBuilder.setUri("http://" + hub + "/api/" + username + "/lights/" + light + "/state");
         requestBuilder.setCharset(StandardCharsets.UTF_8);
         requestBuilder.setHeader("content-type", "application/json");
         requestBuilder.setEntity(entityBuilder.build());
@@ -166,10 +173,12 @@ public class OutdoorLightTask implements Runnable {
         entityBuilder.setText(gson.toJson(entity));
 
         RequestBuilder requestBuilder = RequestBuilder.create("PUT");
-        requestBuilder.setUri("http://" + hub + "/api/" + username + "/lights/" + light);
+        requestBuilder.setUri("http://" + hub + "/api/" + username + "/lights/" + light + "/state");
         requestBuilder.setCharset(StandardCharsets.UTF_8);
         requestBuilder.setHeader("content-type", "application/json");
         requestBuilder.setEntity(entityBuilder.build());
+
+        System.out.println(requestBuilder.getUri());
 
         try (CloseableHttpResponse response = client.execute(requestBuilder.build())) {
             EntityUtils.consume(response.getEntity());
