@@ -119,9 +119,16 @@ public class OutdoorLightTask implements Runnable {
                             if (currentTime > sunriseTime && currentTime < sunsetTime) {
                                 turnOff(this.gson, this.client, this.hub, this.username, id);
                             } else {
+                                int bri = 0;
+                                if (currentTime <= sunriseTime) {
+                                    bri = Math.min((sunriseTime - currentTime) * 3, 254);
+                                }
+                                if (currentTime >= sunriseTime) {
+                                    bri = Math.min((currentTime - sunriseTime) * 3, 254);
+                                }
                                 Map<String, Object> params = new HashMap<>();
                                 params.put("on", true);
-                                params.put("bri", 50);
+                                params.put("bri", bri);
                                 params.put("xy", xy(1.0f, 1.0f, 1.0f));
                                 turnOn(this.gson, this.client, this.hub, this.username, id, params);
                             }
