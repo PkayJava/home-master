@@ -65,7 +65,7 @@ public class BootstrapProgram implements LifecycleListener {
                     }
                     this.executor.scheduleWithFixedDelay(new PhilipsHueTask(this.client, this.hub, this.username), 1, 1, TimeUnit.MINUTES);
 
-                    this.executor.scheduleWithFixedDelay(new OutdoorLightTask(this.client, this.hub, this.username), 1, 1, TimeUnit.SECONDS);
+                    this.executor.scheduleWithFixedDelay(new OutdoorLightTask(this.client, this.hub, this.username), 10, 10, TimeUnit.SECONDS);
 
                     LOGGER.info("INITIALIZED");
                 } else if (event.getLifecycle().getState() == LifecycleState.STARTING) {
