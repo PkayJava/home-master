@@ -1,5 +1,7 @@
 package com.angkorteam.home.thread;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.RequestBuilder;
@@ -10,7 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 public class PhilipsHueTask implements Runnable {
 
@@ -24,7 +28,10 @@ public class PhilipsHueTask implements Runnable {
 
     private final String username;
 
-    public PhilipsHueTask(CloseableHttpClient client, String hub, String username) {
+    private final Gson gson;
+
+    public PhilipsHueTask(Gson gson, CloseableHttpClient client, String hub, String username) {
+        this.gson = gson;
         this.client = client;
         this.hub = hub;
         this.username = username;
@@ -33,17 +40,20 @@ public class PhilipsHueTask implements Runnable {
     @Override
     public void run() {
         File tempWorkspace = FileUtils.getTempDirectory();
-        queryLight(this.client, this.hub, this.username, tempWorkspace);
+        queryLight(this.gson, this.client, this.hub, this.username, tempWorkspace);
     }
 
-    public static void queryLight(CloseableHttpClient client, String hub, String username, File outputFolder) {
+    public static void queryLight(Gson gson, CloseableHttpClient client, String hub, String username, File outputFolder) {
         File hueFile = new File(outputFolder, PhilipsHueTask.NAME);
 
         RequestBuilder requestBuilder = RequestBuilder.create("GET");
         requestBuilder.setUri("http://" + hub + "/api/" + username);
 
         try (CloseableHttpResponse response = client.execute(requestBuilder.build())) {
-            FileUtils.writeStringToFile(hueFile, EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+            Type type = new TypeToken<Map<String, Object>>() {
+            }.getType();
+            Map<String, Object> json = gson.fromJson(EntityUtils.toString(response.getEntity()), type);
+            FileUtils.writeStringToFile(hueFile, gson.toJson(json), StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.info(e.getMessage());
         }

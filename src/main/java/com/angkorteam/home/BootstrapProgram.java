@@ -2,6 +2,8 @@ package com.angkorteam.home;
 
 import com.angkorteam.home.thread.AstronomyTask;
 import com.angkorteam.home.thread.PhilipsHueTask;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.LifecycleState;
@@ -39,11 +41,14 @@ public class BootstrapProgram implements LifecycleListener {
 
     private CloseableHttpClient client;
 
+    private Gson gson;
+
     @Override
     public void lifecycleEvent(LifecycleEvent event) {
         if (event.getSource() != null) {
             if (event.getSource() instanceof StandardServer) {
                 if (event.getLifecycle().getState() == LifecycleState.INITIALIZING) {
+                    this.gson = new GsonBuilder().setPrettyPrinting().create();
                     HttpClientBuilder clientBuilder = HttpClientBuilder.create();
                     this.client = clientBuilder.build();
 
@@ -60,9 +65,9 @@ public class BootstrapProgram implements LifecycleListener {
 
                     File hueFile = new File(tempWorkspace, "hue.json");
                     if (!hueFile.exists()) {
-                        PhilipsHueTask.queryLight(this.client, this.hub, this.username, tempWorkspace);
+                        PhilipsHueTask.queryLight(this.gson, this.client, this.hub, this.username, tempWorkspace);
                     }
-                    this.executor.scheduleWithFixedDelay(new PhilipsHueTask(this.client, this.hub, this.username), 1, 1, TimeUnit.SECONDS);
+                    this.executor.scheduleWithFixedDelay(new PhilipsHueTask(this.gson, this.client, this.hub, this.username), 1, 1, TimeUnit.SECONDS);
 
                     // this.executor.scheduleWithFixedDelay(new OutdoorLightTask(this.client, this.hub, this.username), 10, 10, TimeUnit.SECONDS);
 
