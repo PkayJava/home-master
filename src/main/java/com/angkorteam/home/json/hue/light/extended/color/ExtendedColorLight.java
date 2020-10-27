@@ -1,9 +1,10 @@
-package com.angkorteam.home.json.light;
+package com.angkorteam.home.json.hue.light.extended.color;
 
+import com.angkorteam.home.json.hue.SoftwareUpdate;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Light {
+public class ExtendedColorLight {
 
     @Expose
     @SerializedName("state")

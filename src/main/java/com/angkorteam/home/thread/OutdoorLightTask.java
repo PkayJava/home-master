@@ -2,7 +2,7 @@ package com.angkorteam.home.thread;
 
 import com.angkorteam.home.json.app.Home;
 import com.angkorteam.home.json.astronomy.Astronomy;
-import com.angkorteam.home.json.light.Light;
+import com.angkorteam.home.json.hue.light.extended.color.ExtendedColorLight;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -58,7 +58,7 @@ public class OutdoorLightTask implements Runnable {
         File todayFile = new File(tempWorkspace, FORMATTER.print(today) + ".json");
         File yesterdayFile = new File(tempWorkspace, FORMATTER.print(yesterday) + ".json");
         File homeFile = new File("conf/home.json");
-        File hueFile = new File(tempWorkspace, "hue.json");
+        File hueFile = new File(tempWorkspace, PhilipsHueTask.NAME);
 
         FileUtils.deleteQuietly(yesterdayFile);
 
@@ -66,9 +66,9 @@ public class OutdoorLightTask implements Runnable {
             try {
                 Home home = gson.fromJson(FileUtils.readFileToString(homeFile, StandardCharsets.UTF_8), Home.class);
 
-                Type type = new TypeToken<Map<String, Light>>() {
+                Type type = new TypeToken<Map<String, ExtendedColorLight>>() {
                 }.getType();
-                Map<String, Light> lights = gson.fromJson(FileUtils.readFileToString(hueFile, StandardCharsets.UTF_8), type);
+                Map<String, ExtendedColorLight> lights = gson.fromJson(FileUtils.readFileToString(hueFile, StandardCharsets.UTF_8), type);
 
                 LocalTime now = LocalTime.now();
                 Astronomy response = gson.fromJson(FileUtils.readFileToString(todayFile, StandardCharsets.UTF_8), Astronomy.class);
@@ -109,9 +109,9 @@ public class OutdoorLightTask implements Runnable {
                     hasMoonset = true;
                 }
 
-                for (Map.Entry<String, Light> linker : lights.entrySet()) {
+                for (Map.Entry<String, ExtendedColorLight> linker : lights.entrySet()) {
                     String id = linker.getKey();
-                    Light light = linker.getValue();
+                    ExtendedColorLight light = linker.getValue();
                     for (String uniqueId : home.getOutdoor()) {
                         if (uniqueId.equals(light.getUniqueId())) {
                             if (light.getState().isReachable()) {
@@ -191,4 +191,5 @@ public class OutdoorLightTask implements Runnable {
             LOGGER.info(e.getMessage());
         }
     }
+
 }

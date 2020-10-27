@@ -1,4 +1,4 @@
-package com.angkorteam.home.json.light;
+package com.angkorteam.home.json.hue;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

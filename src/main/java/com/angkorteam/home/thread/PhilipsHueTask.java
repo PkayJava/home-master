@@ -14,6 +14,8 @@ import java.nio.charset.StandardCharsets;
 
 public class PhilipsHueTask implements Runnable {
 
+    public static final String NAME = "philips-hue.json";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PhilipsHueTask.class);
 
     private final CloseableHttpClient client;
@@ -35,10 +37,10 @@ public class PhilipsHueTask implements Runnable {
     }
 
     public static void queryLight(CloseableHttpClient client, String hub, String username, File outputFolder) {
-        File hueFile = new File(outputFolder, "hue.json");
+        File hueFile = new File(outputFolder, PhilipsHueTask.NAME);
 
         RequestBuilder requestBuilder = RequestBuilder.create("GET");
-        requestBuilder.setUri("http://" + hub + "/api/" + username + "/lights");
+        requestBuilder.setUri("http://" + hub + "/api/" + username);
 
         try (CloseableHttpResponse response = client.execute(requestBuilder.build())) {
             FileUtils.writeStringToFile(hueFile, EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8), StandardCharsets.UTF_8);
