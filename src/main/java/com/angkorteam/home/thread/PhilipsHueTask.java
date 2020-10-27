@@ -112,7 +112,7 @@ public class PhilipsHueTask implements Runnable {
                         newSensorsObject.put(sensorObject.getKey(), newSensorObjectValue);
                     }
                 }
-                FileUtils.writeStringToFile(hueReachableStateFile, gson.toJson(philipsHueObject), StandardCharsets.UTF_8);
+                FileUtils.writeStringToFile(hueReachableStateFile, gson.toJson(newPhilipsHueObject), StandardCharsets.UTF_8);
             }
         } catch (IOException e) {
             LOGGER.info(e.getMessage());
