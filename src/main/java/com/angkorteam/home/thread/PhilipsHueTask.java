@@ -216,8 +216,12 @@ public class PhilipsHueTask implements Runnable {
                     insertQuery.addValue("manufacturer_name = :manufacturer_name", manufacturer_name);
                     insertQuery.addValue("product_name = :product_name", product_name);
 
-                    insertQuery.addValue("state_temperature = :state_temperature", state_temperature);
-                    insertQuery.addValue("state_last_updated = :state_last_updated", state_last_updated == null ? null : DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    if (state_temperature != null) {
+                        insertQuery.addValue("state_temperature = :state_temperature", state_temperature);
+                    }
+                    if (state_last_updated != null) {
+                        insertQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    }
 
                     insertQuery.addValue("config_on = :config_on", config_on);
                     insertQuery.addValue("config_battery = :config_battery", config_battery);
@@ -241,8 +245,16 @@ public class PhilipsHueTask implements Runnable {
                     updateQuery.addValue("manufacturer_name = :manufacturer_name", manufacturer_name);
                     updateQuery.addValue("product_name = :product_name", product_name);
 
-                    updateQuery.addValue("state_temperature = :state_temperature", state_temperature);
-                    updateQuery.addValue("state_last_updated = :state_last_updated", state_last_updated == null ? null : DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    if (state_temperature != null) {
+                        updateQuery.addValue("state_temperature = :state_temperature", state_temperature);
+                    } else {
+                        updateQuery.addValue("state_temperature = NULL");
+                    }
+                    if (state_last_updated != null) {
+                        updateQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    } else {
+                        updateQuery.addValue("state_last_updated = NULL");
+                    }
 
                     updateQuery.addValue("config_on = :config_on", config_on);
                     updateQuery.addValue("config_battery = :config_battery", config_battery);
@@ -304,10 +316,18 @@ public class PhilipsHueTask implements Runnable {
                     insertQuery.addValue("manufacturer_name = :manufacturer_name", manufacturer_name);
                     insertQuery.addValue("product_name = :product_name", product_name);
 
-                    insertQuery.addValue("state_light_level = :state_light_level", state_light_level);
-                    insertQuery.addValue("state_dark = :state_dark", state_dark != null && state_dark);
-                    insertQuery.addValue("state_daylight = :state_daylight", state_daylight != null && state_daylight);
-                    insertQuery.addValue("state_last_updated = :state_last_updated", state_last_updated == null ? null : DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    if (state_light_level != null) {
+                        insertQuery.addValue("state_light_level = :state_light_level", state_light_level);
+                    }
+                    if (state_dark != null) {
+                        insertQuery.addValue("state_dark = :state_dark", state_dark);
+                    }
+                    if (state_daylight != null) {
+                        insertQuery.addValue("state_daylight = :state_daylight", state_daylight);
+                    }
+                    if (state_last_updated != null) {
+                        insertQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    }
 
                     insertQuery.addValue("config_on = :config_on", config_on);
                     insertQuery.addValue("config_battery = :config_battery", config_battery);
@@ -333,10 +353,26 @@ public class PhilipsHueTask implements Runnable {
                     updateQuery.addValue("manufacturer_name = :manufacturer_name", manufacturer_name);
                     updateQuery.addValue("product_name = :product_name", product_name);
 
-                    updateQuery.addValue("state_light_level = :state_light_level", state_light_level);
-                    updateQuery.addValue("state_dark = :state_dark", state_dark);
-                    updateQuery.addValue("state_daylight = :state_daylight", state_daylight);
-                    updateQuery.addValue("state_last_updated = :state_last_updated", state_last_updated == null ? null : DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    if (state_light_level != null) {
+                        updateQuery.addValue("state_light_level = :state_light_level", state_light_level);
+                    } else {
+                        updateQuery.addValue("state_light_level = NULL");
+                    }
+                    if (state_dark != null) {
+                        updateQuery.addValue("state_dark = :state_dark", state_dark);
+                    } else {
+                        updateQuery.addValue("state_dark = NULL");
+                    }
+                    if (state_daylight != null) {
+                        updateQuery.addValue("state_daylight = :state_daylight", state_daylight);
+                    } else {
+                        updateQuery.addValue("state_daylight = NULL");
+                    }
+                    if (state_last_updated != null) {
+                        updateQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    } else {
+                        updateQuery.addValue("state_last_updated = NULL");
+                    }
 
                     updateQuery.addValue("config_on = :config_on", config_on);
                     updateQuery.addValue("config_battery = :config_battery", config_battery);
@@ -400,8 +436,12 @@ public class PhilipsHueTask implements Runnable {
                     insertQuery.addValue("manufacturer_name = :manufacturer_name", manufacturer_name);
                     insertQuery.addValue("product_name = :product_name", product_name);
 
-                    insertQuery.addValue("state_presence = :state_presence", state_presence);
-                    insertQuery.addValue("state_last_updated = :state_last_updated", state_last_updated == null ? null : DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    if (state_presence != null) {
+                        insertQuery.addValue("state_presence = :state_presence", state_presence);
+                    }
+                    if (state_last_updated != null) {
+                        insertQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    }
 
                     insertQuery.addValue("config_on = :config_on", config_on);
                     insertQuery.addValue("config_battery = :config_battery", config_battery);
@@ -427,8 +467,16 @@ public class PhilipsHueTask implements Runnable {
                     updateQuery.addValue("manufacturer_name = :manufacturer_name", manufacturer_name);
                     updateQuery.addValue("product_name = :product_name", product_name);
 
-                    updateQuery.addValue("state_presence = :state_presence", state_presence);
-                    updateQuery.addValue("state_last_updated = :state_last_updated", state_last_updated == null ? null : DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    if (state_presence != null) {
+                        updateQuery.addValue("state_presence = :state_presence", state_presence);
+                    } else {
+                        updateQuery.addValue("state_presence = NULL");
+                    }
+                    if (state_last_updated != null) {
+                        updateQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    } else {
+                        updateQuery.addValue("state_last_updated = NULL");
+                    }
 
                     updateQuery.addValue("config_on = :config_on", config_on);
                     updateQuery.addValue("config_battery = :config_battery", config_battery);
