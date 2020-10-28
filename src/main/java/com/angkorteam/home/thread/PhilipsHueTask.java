@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
 public class PhilipsHueTask implements Runnable {
@@ -75,8 +76,8 @@ public class PhilipsHueTask implements Runnable {
                     int state_hue = (int) (double) ((Map<String, Object>) lightObject.get("state")).get("hue");
                     int state_sat = (int) (double) ((Map<String, Object>) lightObject.get("state")).get("sat");
                     String state_effect = (String) ((Map<String, Object>) lightObject.get("state")).get("effect");
-                    double state_xy_x = ((double[]) ((Map<String, Object>) lightObject.get("state")).get("xy"))[0];
-                    double state_xy_y = ((double[]) ((Map<String, Object>) lightObject.get("state")).get("xy"))[1];
+                    double state_xy_x = ((List<Double>) ((Map<String, Object>) lightObject.get("state")).get("xy")).get(0);
+                    double state_xy_y = ((List<Double>) ((Map<String, Object>) lightObject.get("state")).get("xy")).get(1);
                     int state_ct = (int) (double) ((Map<String, Object>) lightObject.get("state")).get("ct");
                     String state_alert = (String) ((Map<String, Object>) lightObject.get("state")).get("alert");
                     String state_color_mode = (String) ((Map<String, Object>) lightObject.get("state")).get("colormode");
