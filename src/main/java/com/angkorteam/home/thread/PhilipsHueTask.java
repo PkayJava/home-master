@@ -167,7 +167,91 @@ public class PhilipsHueTask implements Runnable {
         for (Map.Entry<String, Object> sensorEntry : sensorsObject.entrySet()) {
             Map<String, Object> sensorObject = (Map<String, Object>) sensorEntry.getValue();
             String type = (String) sensorObject.get("type");
-            if ("ZLLLightLevel".equals(type)) {
+            if ("ZLLTemperature".equals(type)) {
+                String resource_id = sensorEntry.getKey();
+                String unique_id = (String) sensorObject.get("uniqueid");
+                String name = (String) sensorObject.get("name");
+                String model_id = (String) sensorObject.get("modelid");
+                String manufacturer_name = (String) sensorObject.get("manufacturername");
+                String product_name = (String) sensorObject.get("productname");
+                String software_version = (String) sensorObject.get("swversion");
+
+                int state_temperature = (int) (double) ((Map<String, Object>) sensorObject.get("state")).get("temperature");
+                String state_last_updated = (String) ((Map<String, Object>) sensorObject.get("state")).get("lastupdated");
+
+                boolean config_on = (boolean) ((Map<String, Object>) sensorObject.get("config")).get("on");
+                int config_battery = (int) (double) ((Map<String, Object>) sensorObject.get("config")).get("battery");
+                boolean config_reachable = (boolean) ((Map<String, Object>) sensorObject.get("config")).get("reachable");
+                String config_alert = (String) ((Map<String, Object>) sensorObject.get("config")).get("alert");
+                boolean config_led_indication = (boolean) ((Map<String, Object>) sensorObject.get("config")).get("ledindication");
+
+                DeleteQuery deleteQuery = null;
+                {
+                    deleteQuery = new DeleteQuery("tbl_motion_sensor");
+                    deleteQuery.addWhere("resource_id = :resource_id", resource_id);
+                    named.update(deleteQuery.toSQL(), deleteQuery.toParam());
+
+                    deleteQuery = new DeleteQuery("tbl_light_sensor");
+                    deleteQuery.addWhere("resource_id = :resource_id", resource_id);
+                    named.update(deleteQuery.toSQL(), deleteQuery.toParam());
+                }
+
+                SelectQuery selectQuery = new SelectQuery("tbl_light_sensor");
+                selectQuery.addField("COUNT(unique_id)");
+                selectQuery.addWhere("unique_id = :unique_id", unique_id);
+
+                Boolean has = named.queryForObject(selectQuery.toSQL(), selectQuery.toParam(), Boolean.class);
+                if (has == null || !has) {
+                    // insert
+                    deleteQuery = new DeleteQuery("tbl_light_sensor");
+                    deleteQuery.addWhere("resource_id = :resource_id", resource_id);
+                    named.update(deleteQuery.toSQL(), deleteQuery.toParam());
+
+                    InsertQuery insertQuery = new InsertQuery("tbl_light_sensor");
+                    insertQuery.addValue("unique_id = :unique_id", unique_id);
+                    insertQuery.addValue("resource_id = :resource_id", resource_id);
+                    insertQuery.addValue("software_version = :software_version", software_version);
+                    insertQuery.addValue("name = :name", name);
+                    insertQuery.addValue("model_id = :model_id", model_id);
+                    insertQuery.addValue("manufacturer_name = :manufacturer_name", manufacturer_name);
+                    insertQuery.addValue("product_name = :product_name", product_name);
+
+                    insertQuery.addValue("state_temperature = :state_temperature", state_temperature);
+                    insertQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+
+                    insertQuery.addValue("config_on = :config_on", config_on);
+                    insertQuery.addValue("config_battery = :config_battery", config_battery);
+                    insertQuery.addValue("config_reachable = :config_reachable", config_reachable);
+                    insertQuery.addValue("config_alert = :config_alert", config_alert);
+                    insertQuery.addValue("config_led_indication = :config_led_indication", config_led_indication);
+                    named.update(insertQuery.toSQL(), insertQuery.toParam());
+                } else {
+                    // update
+                    deleteQuery = new DeleteQuery("tbl_light_sensor");
+                    deleteQuery.addWhere("resource_id = :resource_id", resource_id);
+                    deleteQuery.addWhere("unique_id != :unique_id", unique_id);
+                    named.update(deleteQuery.toSQL(), deleteQuery.toParam());
+
+                    UpdateQuery updateQuery = new UpdateQuery("tbl_light_sensor");
+                    updateQuery.addWhere("unique_id = :unique_id", unique_id);
+                    updateQuery.addValue("resource_id = :resource_id", resource_id);
+                    updateQuery.addValue("software_version = :software_version", software_version);
+                    updateQuery.addValue("name = :name", name);
+                    updateQuery.addValue("model_id = :model_id", model_id);
+                    updateQuery.addValue("manufacturer_name = :manufacturer_name", manufacturer_name);
+                    updateQuery.addValue("product_name = :product_name", product_name);
+
+                    updateQuery.addValue("state_temperature = :state_temperature", state_temperature);
+                    updateQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+
+                    updateQuery.addValue("config_on = :config_on", config_on);
+                    updateQuery.addValue("config_battery = :config_battery", config_battery);
+                    updateQuery.addValue("config_reachable = :config_reachable", config_reachable);
+                    updateQuery.addValue("config_alert = :config_alert", config_alert);
+                    updateQuery.addValue("config_led_indication = :config_led_indication", config_led_indication);
+                    named.update(updateQuery.toSQL(), updateQuery.toParam());
+                }
+            } else if ("ZLLLightLevel".equals(type)) {
                 String resource_id = sensorEntry.getKey();
                 String unique_id = (String) sensorObject.get("uniqueid");
                 String name = (String) sensorObject.get("name");
@@ -190,9 +274,15 @@ public class PhilipsHueTask implements Runnable {
                 int config_thold_offset = (int) (double) ((Map<String, Object>) sensorObject.get("config")).get("tholdoffset");
 
                 DeleteQuery deleteQuery = null;
-                deleteQuery = new DeleteQuery("tbl_motion_sensor");
-                deleteQuery.addWhere("resource_id = :resource_id", resource_id);
-                named.update(deleteQuery.toSQL(), deleteQuery.toParam());
+                {
+                    deleteQuery = new DeleteQuery("tbl_motion_sensor");
+                    deleteQuery.addWhere("resource_id = :resource_id", resource_id);
+                    named.update(deleteQuery.toSQL(), deleteQuery.toParam());
+
+                    deleteQuery = new DeleteQuery("tbl_temperature_sensor");
+                    deleteQuery.addWhere("resource_id = :resource_id", resource_id);
+                    named.update(deleteQuery.toSQL(), deleteQuery.toParam());
+                }
 
                 SelectQuery selectQuery = new SelectQuery("tbl_light_sensor");
                 selectQuery.addField("COUNT(unique_id)");
@@ -277,14 +367,21 @@ public class PhilipsHueTask implements Runnable {
                 int config_sensitivity_max = (int) (double) ((Map<String, Object>) sensorObject.get("config")).get("sensitivitymax");
                 boolean config_led_indication = (boolean) ((Map<String, Object>) sensorObject.get("config")).get("ledindication");
 
+                DeleteQuery deleteQuery = null;
+
+                {
+                    deleteQuery = new DeleteQuery("tbl_light_sensor");
+                    deleteQuery.addWhere("resource_id = :resource_id", resource_id);
+                    named.update(deleteQuery.toSQL(), deleteQuery.toParam());
+
+                    deleteQuery = new DeleteQuery("tbl_temperature_sensor");
+                    deleteQuery.addWhere("resource_id = :resource_id", resource_id);
+                    named.update(deleteQuery.toSQL(), deleteQuery.toParam());
+                }
+
                 SelectQuery selectQuery = new SelectQuery("tbl_motion_sensor");
                 selectQuery.addField("COUNT(unique_id)");
                 selectQuery.addWhere("unique_id = :unique_id", unique_id);
-
-                DeleteQuery deleteQuery = null;
-                deleteQuery = new DeleteQuery("tbl_light_sensor");
-                deleteQuery.addWhere("resource_id = :resource_id", resource_id);
-                named.update(deleteQuery.toSQL(), deleteQuery.toParam());
 
                 Boolean has = named.queryForObject(selectQuery.toSQL(), selectQuery.toParam(), Boolean.class);
                 if (has == null || !has) {
