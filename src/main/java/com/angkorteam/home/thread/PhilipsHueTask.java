@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -60,7 +59,6 @@ public class PhilipsHueTask implements Runnable {
 
             for (Map.Entry<String, Object> lightEntry : lightsObject.entrySet()) {
                 Map<String, Object> lightObject = (Map<String, Object>) lightEntry.getValue();
-                LOGGER.info(gson.toJson(lightObject));
                 String type = (String) lightObject.get("type");
                 if ("Extended color light".equals(type)) {
                     String resource_id = lightEntry.getKey();
@@ -152,8 +150,9 @@ public class PhilipsHueTask implements Runnable {
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (Throwable e) {
             LOGGER.info(e.getMessage());
+            e.printStackTrace();
         }
     }
 
