@@ -23,3 +23,5 @@ CREATE TABLE tbl_extended_color_light (
     state_reachable     TINYINT(1)    NOT NULL,
     PRIMARY KEY (unique_id)
 ) ENGINE=InnoDB;
+
+CREATE INDEX resource_id_001 ON tbl_extended_color_light(resource_id);
