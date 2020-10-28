@@ -79,6 +79,7 @@ public class PhilipsHueTask implements Runnable {
                     Map<String, Object> sensorObjectValue = (Map<String, Object>) sensorObject.getValue();
                     Map<String, Object> newSensorObjectValue = new HashMap<>();
                     newSensorObjectValue.put("state", sensorObjectValue.get("state"));
+                    newSensorObjectValue.put("config", sensorObjectValue.get("config"));
                     newSensorsObject.put(sensorObject.getKey(), newSensorObjectValue);
                 }
                 FileUtils.writeStringToFile(hueStateFile, gson.toJson(newPhilipsHueObject), StandardCharsets.UTF_8);
@@ -109,6 +110,7 @@ public class PhilipsHueTask implements Runnable {
                     if (reachable) {
                         Map<String, Object> newSensorObjectValue = new HashMap<>();
                         newSensorObjectValue.put("state", sensorObjectValue.get("state"));
+                        newSensorObjectValue.put("config", sensorObjectValue.get("config"));
                         newSensorsObject.put(sensorObject.getKey(), newSensorObjectValue);
                     }
                 }
