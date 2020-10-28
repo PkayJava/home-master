@@ -196,14 +196,14 @@ public class PhilipsHueTask implements Runnable {
                     named.update(deleteQuery.toSQL(), deleteQuery.toParam());
                 }
 
-                SelectQuery selectQuery = new SelectQuery("tbl_light_sensor");
+                SelectQuery selectQuery = new SelectQuery("tbl_temperature_sensor");
                 selectQuery.addField("COUNT(unique_id)");
                 selectQuery.addWhere("unique_id = :unique_id", unique_id);
 
                 Boolean has = named.queryForObject(selectQuery.toSQL(), selectQuery.toParam(), Boolean.class);
                 if (has == null || !has) {
                     // insert
-                    deleteQuery = new DeleteQuery("tbl_light_sensor");
+                    deleteQuery = new DeleteQuery("tbl_temperature_sensor");
                     deleteQuery.addWhere("resource_id = :resource_id", resource_id);
                     named.update(deleteQuery.toSQL(), deleteQuery.toParam());
 
@@ -227,12 +227,12 @@ public class PhilipsHueTask implements Runnable {
                     named.update(insertQuery.toSQL(), insertQuery.toParam());
                 } else {
                     // update
-                    deleteQuery = new DeleteQuery("tbl_light_sensor");
+                    deleteQuery = new DeleteQuery("tbl_temperature_sensor");
                     deleteQuery.addWhere("resource_id = :resource_id", resource_id);
                     deleteQuery.addWhere("unique_id != :unique_id", unique_id);
                     named.update(deleteQuery.toSQL(), deleteQuery.toParam());
 
-                    UpdateQuery updateQuery = new UpdateQuery("tbl_light_sensor");
+                    UpdateQuery updateQuery = new UpdateQuery("tbl_temperature_sensor");
                     updateQuery.addWhere("unique_id = :unique_id", unique_id);
                     updateQuery.addValue("resource_id = :resource_id", resource_id);
                     updateQuery.addValue("software_version = :software_version", software_version);
