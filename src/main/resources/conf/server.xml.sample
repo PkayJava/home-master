@@ -2,9 +2,13 @@
 <Server port="8005" shutdown="SHUTDOWN">
     <Listener
             className="com.angkorteam.home.BootstrapProgram"
-            apiKey=""
-            location="Phnom Penh"
-            username=""
-            hub=""
+            astronomyApiKey=""
+            astronomyLocation="Phnom Penh"
+            hueHubUsername=""
+            hueHubIp=""
+            jdbcUrl=""
+            jdbcUsername=""
+            jdbcPassword=""
+            jdbcDriverClassName=""
     />
 </Server>
