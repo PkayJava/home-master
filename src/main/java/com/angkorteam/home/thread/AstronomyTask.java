@@ -2,7 +2,6 @@ package com.angkorteam.home.thread;
 
 import com.angkorteam.home.json.astronomy.Astronomy;
 import com.google.gson.Gson;
-import org.apache.commons.io.FileUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -95,7 +93,7 @@ public class AstronomyTask implements Runnable {
                     params.put("moonset", astronomy.getMoonset() + ":00");
                 }
                 params.put("moon_status", astronomy.getMoonStatus());
-                params.put("location", astronomy.getLocation());
+                params.put("location", astronomy.getLocation().getLocation());
                 named.update("INSERT INTO tbl_astronomy(astronomy_date, sunrise, sunset, sun_status, moonrise, moonset, moon_status, location) VALUES(:astronomy_date, :sunrise, :sunset, :sun_status, :moonrise, :moonset, :moon_status, :location)", params);
             } else {
                 Map<String, Object> params = new HashMap<>();
