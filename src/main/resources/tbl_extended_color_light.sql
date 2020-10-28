@@ -24,4 +24,4 @@ CREATE TABLE tbl_extended_color_light (
     PRIMARY KEY (unique_id)
 ) ENGINE=InnoDB;
 
-CREATE INDEX resource_id_001 ON tbl_extended_color_light(resource_id);
+CREATE INDEX extended_color_light_001 ON tbl_extended_color_light(resource_id);

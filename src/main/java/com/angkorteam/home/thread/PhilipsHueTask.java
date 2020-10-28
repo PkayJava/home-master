@@ -6,6 +6,8 @@ import com.angkorteam.home.query.SelectQuery;
 import com.angkorteam.home.query.UpdateQuery;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -16,6 +18,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -58,31 +61,110 @@ public class PhilipsHueTask implements Runnable {
             Map<String, Object> lightsObject = (Map<String, Object>) philipsHueObject.get("lights");
             Map<String, Object> sensorsObject = (Map<String, Object>) philipsHueObject.get("sensors");
 
-            for (Map.Entry<String, Object> lightEntry : lightsObject.entrySet()) {
-                Map<String, Object> lightObject = (Map<String, Object>) lightEntry.getValue();
-                String type = (String) lightObject.get("type");
-                if ("Extended color light".equals(type)) {
-                    String resource_id = lightEntry.getKey();
-                    String unique_id = (String) lightObject.get("uniqueid");
-                    String software_version = (String) lightObject.get("swversion");
-                    String software_config_id = (String) lightObject.get("swconfigid");
-                    String product_id = (String) lightObject.get("productid");
-                    String name = (String) lightObject.get("name");
-                    String model_id = (String) lightObject.get("modelid");
-                    String manufacturer_name = (String) lightObject.get("manufacturername");
-                    String product_name = (String) lightObject.get("productname");
-                    boolean state_on = (boolean) ((Map<String, Object>) lightObject.get("state")).get("on");
-                    int state_bri = (int) (double) ((Map<String, Object>) lightObject.get("state")).get("bri");
-                    int state_hue = (int) (double) ((Map<String, Object>) lightObject.get("state")).get("hue");
-                    int state_sat = (int) (double) ((Map<String, Object>) lightObject.get("state")).get("sat");
-                    String state_effect = (String) ((Map<String, Object>) lightObject.get("state")).get("effect");
-                    double state_xy_x = ((List<Double>) ((Map<String, Object>) lightObject.get("state")).get("xy")).get(0);
-                    double state_xy_y = ((List<Double>) ((Map<String, Object>) lightObject.get("state")).get("xy")).get(1);
-                    int state_ct = (int) (double) ((Map<String, Object>) lightObject.get("state")).get("ct");
-                    String state_alert = (String) ((Map<String, Object>) lightObject.get("state")).get("alert");
-                    String state_color_mode = (String) ((Map<String, Object>) lightObject.get("state")).get("colormode");
-                    String state_mode = (String) ((Map<String, Object>) lightObject.get("state")).get("mode");
-                    boolean state_reachable = (boolean) ((Map<String, Object>) lightObject.get("state")).get("reachable");
+            for (Map.Entry<String, Object> sensorEntry : sensorsObject.entrySet()) {
+                Map<String, Object> sensorObject = (Map<String, Object>) sensorEntry.getValue();
+                String type = (String) sensorObject.get("type");
+                if ("ZLLPresence".equals(type)) {
+                    String resource_id = sensorEntry.getKey();
+                    String unique_id = (String) sensorObject.get("uniqueid");
+                    String name = (String) sensorObject.get("name");
+                    String model_id = (String) sensorObject.get("modelid");
+                    String manufacturer_name = (String) sensorObject.get("manufacturername");
+                    String product_name = (String) sensorObject.get("productname");
+                    String software_version = (String) sensorObject.get("swversion");
+
+                    boolean state_presence = (boolean) ((Map<String, Object>) sensorObject.get("state")).get("presence");
+                    String state_last_updated = (String) ((Map<String, Object>) sensorObject.get("state")).get("lastupdated");
+
+                    boolean config_on = (boolean) ((Map<String, Object>) sensorObject.get("config")).get("on");
+                    int config_battery = (int) (double) ((Map<String, Object>) sensorObject.get("config")).get("battery");
+                    boolean config_reachable = (boolean) ((Map<String, Object>) sensorObject.get("config")).get("reachable");
+                    String config_alert = (String) ((Map<String, Object>) sensorObject.get("config")).get("alert");
+                    int config_sensitivity = (int) (double) ((Map<String, Object>) sensorObject.get("config")).get("sensitivity");
+                    int config_sensitivity_max = (int) (double) ((Map<String, Object>) sensorObject.get("config")).get("sensitivitymax");
+                    boolean config_led_indication = (boolean) ((Map<String, Object>) sensorObject.get("config")).get("ledindication");
+
+                    SelectQuery selectQuery = new SelectQuery("tbl_motion_sensor");
+                    selectQuery.addField("COUNT(unique_id)");
+                    selectQuery.addWhere("unique_id = :unique_id", unique_id);
+
+                    Boolean has = named.queryForObject(selectQuery.toSQL(), selectQuery.toParam(), Boolean.class);
+                    if (has == null || !has) {
+                        // insert
+                        DeleteQuery deleteQuery = new DeleteQuery("tbl_motion_sensor");
+                        deleteQuery.addWhere("resource_id = :resource_id", resource_id);
+                        named.update(deleteQuery.toSQL(), deleteQuery.toParam());
+
+                        InsertQuery insertQuery = new InsertQuery("tbl_motion_sensor");
+                        insertQuery.addValue("unique_id = :unique_id", unique_id);
+                        insertQuery.addValue("resource_id = :resource_id", resource_id);
+                        insertQuery.addValue("software_version = :software_version", software_version);
+                        insertQuery.addValue("name = :name", name);
+                        insertQuery.addValue("model_id = :model_id", model_id);
+                        insertQuery.addValue("manufacturer_name = :manufacturer_name", manufacturer_name);
+                        insertQuery.addValue("product_name = :product_name", product_name);
+
+                        insertQuery.addValue("state_presence = :state_presence", state_presence);
+                        insertQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+
+                        insertQuery.addValue("config_on = :config_on", config_on);
+                        insertQuery.addValue("config_battery = :config_battery", config_battery);
+                        insertQuery.addValue("config_reachable = :config_reachable", config_reachable);
+                        insertQuery.addValue("config_alert = :config_alert", config_alert);
+                        insertQuery.addValue("config_sensitivity = :config_sensitivity", config_sensitivity);
+                        insertQuery.addValue("config_sensitivity_max = :config_sensitivity_max", config_sensitivity_max);
+                        insertQuery.addValue("config_led_indication = :config_led_indication", config_led_indication);
+                        named.update(insertQuery.toSQL(), insertQuery.toParam());
+                    } else {
+                        // update
+                        DeleteQuery deleteQuery = new DeleteQuery("tbl_motion_sensor");
+                        deleteQuery.addWhere("resource_id = :resource_id", resource_id);
+                        deleteQuery.addWhere("unique_id != :unique_id", unique_id);
+                        named.update(deleteQuery.toSQL(), deleteQuery.toParam());
+
+                        UpdateQuery updateQuery = new UpdateQuery("tbl_motion_sensor");
+                        updateQuery.addWhere("unique_id = :unique_id", unique_id);
+                        updateQuery.addValue("resource_id = :resource_id", resource_id);
+                        updateQuery.addValue("software_version = :software_version", software_version);
+                        updateQuery.addValue("name = :name", name);
+                        updateQuery.addValue("model_id = :model_id", model_id);
+                        updateQuery.addValue("manufacturer_name = :manufacturer_name", manufacturer_name);
+                        updateQuery.addValue("product_name = :product_name", product_name);
+
+                        updateQuery.addValue("state_presence = :state_presence", state_presence);
+                        updateQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+
+                        updateQuery.addValue("config_on = :config_on", config_on);
+                        updateQuery.addValue("config_battery = :config_battery", config_battery);
+                        updateQuery.addValue("config_reachable = :config_reachable", config_reachable);
+                        updateQuery.addValue("config_alert = :config_alert", config_alert);
+                        updateQuery.addValue("config_sensitivity = :config_sensitivity", config_sensitivity);
+                        updateQuery.addValue("config_sensitivity_max = :config_sensitivity_max", config_sensitivity_max);
+                        updateQuery.addValue("config_led_indication = :config_led_indication", config_led_indication);
+                        named.update(updateQuery.toSQL(), updateQuery.toParam());
+                    }
+                } else if ("Extended color light".equals(type)) {
+                    String resource_id = sensorEntry.getKey();
+                    String unique_id = (String) sensorObject.get("uniqueid");
+                    String software_version = (String) sensorObject.get("swversion");
+                    String software_config_id = (String) sensorObject.get("swconfigid");
+                    String product_id = (String) sensorObject.get("productid");
+                    String name = (String) sensorObject.get("name");
+                    String model_id = (String) sensorObject.get("modelid");
+                    String manufacturer_name = (String) sensorObject.get("manufacturername");
+                    String product_name = (String) sensorObject.get("productname");
+                    boolean state_on = (boolean) ((Map<String, Object>) sensorObject.get("state")).get("on");
+                    int state_bri = (int) (double) ((Map<String, Object>) sensorObject.get("state")).get("bri");
+                    int state_hue = (int) (double) ((Map<String, Object>) sensorObject.get("state")).get("hue");
+                    int state_sat = (int) (double) ((Map<String, Object>) sensorObject.get("state")).get("sat");
+                    String state_effect = (String) ((Map<String, Object>) sensorObject.get("state")).get("effect");
+                    double state_xy_x = ((List<Double>) ((Map<String, Object>) sensorObject.get("state")).get("xy")).get(0);
+                    double state_xy_y = ((List<Double>) ((Map<String, Object>) sensorObject.get("state")).get("xy")).get(1);
+                    int state_ct = (int) (double) ((Map<String, Object>) sensorObject.get("state")).get("ct");
+                    String state_alert = (String) ((Map<String, Object>) sensorObject.get("state")).get("alert");
+                    String state_color_mode = (String) ((Map<String, Object>) sensorObject.get("state")).get("colormode");
+                    String state_mode = (String) ((Map<String, Object>) sensorObject.get("state")).get("mode");
+                    boolean state_reachable = (boolean) ((Map<String, Object>) sensorObject.get("state")).get("reachable");
 
                     SelectQuery selectQuery = new SelectQuery("tbl_extended_color_light");
                     selectQuery.addField("COUNT(unique_id)");
@@ -155,6 +237,10 @@ public class PhilipsHueTask implements Runnable {
             LOGGER.info(e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(new Date()));
     }
 
 }
