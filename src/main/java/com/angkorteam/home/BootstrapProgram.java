@@ -2,6 +2,7 @@ package com.angkorteam.home;
 
 import com.angkorteam.home.query.SelectQuery;
 import com.angkorteam.home.thread.AstronomyTask;
+import com.angkorteam.home.thread.PhilipsHueTask;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.catalina.LifecycleEvent;
@@ -9,7 +10,6 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.core.StandardServer;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.commons.io.FileUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.joda.time.LocalDate;
@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
@@ -67,8 +66,6 @@ public class BootstrapProgram implements LifecycleListener {
 
                     this.executor = Executors.newScheduledThreadPool(2);
 
-                    File tempWorkspace = FileUtils.getTempDirectory();
-
                     LocalDate today = LocalDate.now();
 
                     SelectQuery selectQuery = new SelectQuery("tbl_astronomy");
@@ -81,11 +78,7 @@ public class BootstrapProgram implements LifecycleListener {
                     }
                     this.executor.scheduleWithFixedDelay(new AstronomyTask(this.gson, this.named, this.client, this.astronomyApiKey, this.astronomyLocation), 1, 1, TimeUnit.HOURS);
 
-                    // File hueFile = new File(tempWorkspace, PhilipsHueTask.NAME);
-                    // if (!hueFile.exists()) {
-                    //    PhilipsHueTask.queryLight(this.gson, this.client, this.hueHubIp, this.hueHubUsername, tempWorkspace);
-                    // }
-                    // this.executor.scheduleWithFixedDelay(new PhilipsHueTask(this.gson, this.client, this.hueHubIp, this.hueHubUsername), 1, 1, TimeUnit.SECONDS);
+                    this.executor.scheduleWithFixedDelay(new PhilipsHueTask(this.named, this.gson, this.client, this.hueHubIp, this.hueHubUsername), 1, 1, TimeUnit.SECONDS);
 
                     // this.executor.scheduleWithFixedDelay(new OutdoorLightTask(this.client, this.hub, this.username), 10, 10, TimeUnit.SECONDS);
 

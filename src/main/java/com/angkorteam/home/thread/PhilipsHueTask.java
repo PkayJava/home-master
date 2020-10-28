@@ -2,19 +2,16 @@ package com.angkorteam.home.thread;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.apache.commons.io.FileUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 
 public class PhilipsHueTask implements Runnable {
@@ -31,7 +28,10 @@ public class PhilipsHueTask implements Runnable {
 
     private final Gson gson;
 
-    public PhilipsHueTask(Gson gson, CloseableHttpClient client, String ip, String username) {
+    private final NamedParameterJdbcTemplate named;
+
+    public PhilipsHueTask(NamedParameterJdbcTemplate named, Gson gson, CloseableHttpClient client, String ip, String username) {
+        this.named = named;
         this.gson = gson;
         this.client = client;
         this.ip = ip;
@@ -40,81 +40,45 @@ public class PhilipsHueTask implements Runnable {
 
     @Override
     public void run() {
-        File tempWorkspace = FileUtils.getTempDirectory();
-        queryLight(this.gson, this.client, this.ip, this.username, tempWorkspace);
+        queryLight(this.named, this.gson, this.client, this.ip, this.username);
     }
 
-    public static void queryLight(Gson gson, CloseableHttpClient client, String hub, String username, File outputFolder) {
-        File hueFile = new File(outputFolder, PhilipsHueTask.NAME);
-        File hueReachableStateFile = new File(outputFolder, "philips-hue-reachable-state.json");
-        File hueStateFile = new File(outputFolder, "philips-hue-state.json");
-
+    public static void queryLight(NamedParameterJdbcTemplate named, Gson gson, CloseableHttpClient client, String hub, String username) {
         RequestBuilder requestBuilder = RequestBuilder.create("GET");
         requestBuilder.setUri("http://" + hub + "/api/" + username);
 
         try (CloseableHttpResponse response = client.execute(requestBuilder.build())) {
-            Type type = new TypeToken<Map<String, Object>>() {
+            Type objectType = new TypeToken<Map<String, Object>>() {
             }.getType();
-            Map<String, Object> philipsHueObject = gson.fromJson(EntityUtils.toString(response.getEntity()), type);
-            FileUtils.writeStringToFile(hueFile, gson.toJson(philipsHueObject), StandardCharsets.UTF_8);
+            Map<String, Object> philipsHueObject = gson.fromJson(EntityUtils.toString(response.getEntity()), objectType);
 
             Map<String, Object> lightsObject = (Map<String, Object>) philipsHueObject.get("lights");
             Map<String, Object> sensorsObject = (Map<String, Object>) philipsHueObject.get("sensors");
 
-            {
-                Map<String, Object> newPhilipsHueObject = new HashMap<>();
-
-                Map<String, Object> newLightsObject = new HashMap<>();
-                newPhilipsHueObject.put("lights", newLightsObject);
-                for (Map.Entry<String, Object> lightObject : lightsObject.entrySet()) {
-                    Map<String, Object> lightObjectValue = (Map<String, Object>) lightObject.getValue();
-                    Map<String, Object> newLightObjectValue = new HashMap<>();
-                    newLightObjectValue.put("state", lightObjectValue.get("state"));
-                    newLightsObject.put(lightObject.getKey(), newLightObjectValue);
-                }
-
-                Map<String, Object> newSensorsObject = new HashMap<>();
-                newPhilipsHueObject.put("sensors", newSensorsObject);
-                for (Map.Entry<String, Object> sensorObject : sensorsObject.entrySet()) {
-                    Map<String, Object> sensorObjectValue = (Map<String, Object>) sensorObject.getValue();
-                    Map<String, Object> newSensorObjectValue = new HashMap<>();
-                    newSensorObjectValue.put("state", sensorObjectValue.get("state"));
-                    newSensorObjectValue.put("config", sensorObjectValue.get("config"));
-                    newSensorsObject.put(sensorObject.getKey(), newSensorObjectValue);
-                }
-                FileUtils.writeStringToFile(hueStateFile, gson.toJson(newPhilipsHueObject), StandardCharsets.UTF_8);
-            }
-
-            {
-                Map<String, Object> newPhilipsHueObject = new HashMap<>();
-
-                Map<String, Object> newLightsObject = new HashMap<>();
-                newPhilipsHueObject.put("lights", newLightsObject);
-                for (Map.Entry<String, Object> lightObject : lightsObject.entrySet()) {
-                    Map<String, Object> lightObjectValue = (Map<String, Object>) lightObject.getValue();
-                    Map<String, Object> stateMap = (Map<String, Object>) lightObjectValue.get("state");
-                    boolean reachable = (boolean) stateMap.get("reachable");
-                    if (reachable) {
-                        Map<String, Object> newLightObjectValue = new HashMap<>();
-                        newLightObjectValue.put("state", lightObjectValue.get("state"));
-                        newLightsObject.put(lightObject.getKey(), newLightObjectValue);
-                    }
-                }
-
-                Map<String, Object> newSensorsObject = new HashMap<>();
-                newPhilipsHueObject.put("sensors", newSensorsObject);
-                for (Map.Entry<String, Object> sensorObject : sensorsObject.entrySet()) {
-                    Map<String, Object> sensorObjectValue = (Map<String, Object>) sensorObject.getValue();
-                    Map<String, Object> configMap = (Map<String, Object>) sensorObjectValue.get("config");
-                    boolean reachable = configMap.get("reachable") != null && (boolean) configMap.get("reachable");
-                    if (reachable) {
-                        Map<String, Object> newSensorObjectValue = new HashMap<>();
-                        newSensorObjectValue.put("state", sensorObjectValue.get("state"));
-                        newSensorObjectValue.put("config", sensorObjectValue.get("config"));
-                        newSensorsObject.put(sensorObject.getKey(), newSensorObjectValue);
-                    }
-                }
-                FileUtils.writeStringToFile(hueReachableStateFile, gson.toJson(newPhilipsHueObject), StandardCharsets.UTF_8);
+            for (Map.Entry<String, Object> lightEntry : lightsObject.entrySet()) {
+                Map<String, Object> lightObject = (Map<String, Object>) lightEntry.getValue();
+                String resource_id = (String) lightEntry.getKey();
+                String type = (String) lightObject.get("type");
+                String unique_id = (String) lightObject.get("uniqueid");
+                String software_version = (String) lightObject.get("swversion");
+                String software_config_id = (String) lightObject.get("swconfigid");
+                String product_id = (String) lightObject.get("productid");
+                String name = (String) lightObject.get("name");
+                String model_id = (String) lightObject.get("modelid");
+                String manufacturer_name = (String) lightObject.get("manufacturername");
+                String product_name = (String) lightObject.get("productname");
+                boolean state_on = (boolean) ((Map<String, Object>) lightObject.get("state")).get("on");
+                int state_bri = (int) ((Map<String, Object>) lightObject.get("state")).get("bri");
+                int state_hue = (int) ((Map<String, Object>) lightObject.get("state")).get("hue");
+                int state_sat = (int) ((Map<String, Object>) lightObject.get("state")).get("sat");
+                String state_effect = (String) ((Map<String, Object>) lightObject.get("state")).get("effect");
+                double state_xy_x = ((float[]) ((Map<String, Object>) lightObject.get("state")).get("xy"))[0];
+                double state_xy_y = ((float[]) ((Map<String, Object>) lightObject.get("state")).get("xy"))[1];
+                int state_ct = (int) ((Map<String, Object>) lightObject.get("state")).get("ct");
+                String state_alert = (String) ((Map<String, Object>) lightObject.get("state")).get("alert");
+                String state_color_mode = (String) ((Map<String, Object>) lightObject.get("state")).get("colormode");
+                String mode = (String) ((Map<String, Object>) lightObject.get("state")).get("mode");
+                String state_reachable = (String) ((Map<String, Object>) lightObject.get("state")).get("reachable");
             }
         } catch (IOException e) {
             LOGGER.info(e.getMessage());
