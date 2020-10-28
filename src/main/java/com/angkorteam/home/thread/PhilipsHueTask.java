@@ -25,23 +25,23 @@ public class PhilipsHueTask implements Runnable {
 
     private final CloseableHttpClient client;
 
-    private final String hub;
+    private final String ip;
 
     private final String username;
 
     private final Gson gson;
 
-    public PhilipsHueTask(Gson gson, CloseableHttpClient client, String hub, String username) {
+    public PhilipsHueTask(Gson gson, CloseableHttpClient client, String ip, String username) {
         this.gson = gson;
         this.client = client;
-        this.hub = hub;
+        this.ip = ip;
         this.username = username;
     }
 
     @Override
     public void run() {
         File tempWorkspace = FileUtils.getTempDirectory();
-        queryLight(this.gson, this.client, this.hub, this.username, tempWorkspace);
+        queryLight(this.gson, this.client, this.ip, this.username, tempWorkspace);
     }
 
     public static void queryLight(Gson gson, CloseableHttpClient client, String hub, String username, File outputFolder) {

@@ -1,5 +1,6 @@
 package com.angkorteam.home;
 
+import com.angkorteam.home.query.SelectQuery;
 import com.angkorteam.home.thread.AstronomyTask;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,7 +17,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.io.File;
@@ -47,7 +47,6 @@ public class BootstrapProgram implements LifecycleListener {
     private CloseableHttpClient client;
     private BasicDataSource dataSource;
     private NamedParameterJdbcTemplate named;
-    private JdbcTemplate jdbcTemplate;
     private Gson gson;
 
     @Override
@@ -62,7 +61,6 @@ public class BootstrapProgram implements LifecycleListener {
                     this.dataSource.setPassword(this.jdbcPassword);
                     this.dataSource.setDriverClassName(this.jdbcDriverClassName);
                     this.named = new NamedParameterJdbcTemplate(this.dataSource);
-                    this.jdbcTemplate = new JdbcTemplate(this.dataSource);
 
                     HttpClientBuilder clientBuilder = HttpClientBuilder.create();
                     this.client = clientBuilder.build();
@@ -72,11 +70,16 @@ public class BootstrapProgram implements LifecycleListener {
                     File tempWorkspace = FileUtils.getTempDirectory();
 
                     LocalDate today = LocalDate.now();
-                    Boolean todayValue = this.jdbcTemplate.queryForObject("SELECT COUNT(astronomy_date) FROM tbl_astronomy WHERE astronomy_date = ?", Boolean.class, AstronomyTask.FORMATTER.print(today));
+
+                    SelectQuery selectQuery = new SelectQuery("tbl_astronomy");
+                    selectQuery.addField("COUNT(astronomy_date)");
+                    selectQuery.addWhere("astronomy_date = :astronomy_date", AstronomyTask.FORMATTER.print(today));
+
+                    Boolean todayValue = this.named.queryForObject(selectQuery.toSQL(), selectQuery.toParam(), Boolean.class);
                     if (todayValue == null || !todayValue) {
-                        AstronomyTask.queryData(this.gson, this.jdbcTemplate, this.named, this.client, this.astronomyApiKey, this.astronomyLocation, today);
+                        AstronomyTask.queryData(this.gson, this.named, this.client, this.astronomyApiKey, this.astronomyLocation, today);
                     }
-                    this.executor.scheduleWithFixedDelay(new AstronomyTask(this.gson, this.jdbcTemplate, this.named, this.client, this.astronomyApiKey, this.astronomyLocation), 1, 1, TimeUnit.HOURS);
+                    this.executor.scheduleWithFixedDelay(new AstronomyTask(this.gson, this.named, this.client, this.astronomyApiKey, this.astronomyLocation), 1, 1, TimeUnit.HOURS);
 
                     // File hueFile = new File(tempWorkspace, PhilipsHueTask.NAME);
                     // if (!hueFile.exists()) {
