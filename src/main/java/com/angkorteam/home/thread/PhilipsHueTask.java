@@ -207,7 +207,7 @@ public class PhilipsHueTask implements Runnable {
                     deleteQuery.addWhere("resource_id = :resource_id", resource_id);
                     named.update(deleteQuery.toSQL(), deleteQuery.toParam());
 
-                    InsertQuery insertQuery = new InsertQuery("tbl_light_sensor");
+                    InsertQuery insertQuery = new InsertQuery("tbl_temperature_sensor");
                     insertQuery.addValue("unique_id = :unique_id", unique_id);
                     insertQuery.addValue("resource_id = :resource_id", resource_id);
                     insertQuery.addValue("software_version = :software_version", software_version);
