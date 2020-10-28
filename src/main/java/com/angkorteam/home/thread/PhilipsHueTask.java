@@ -55,13 +55,12 @@ public class PhilipsHueTask implements Runnable {
             }.getType();
             Map<String, Object> philipsHueObject = gson.fromJson(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8), objectType);
 
-            LOGGER.info(gson.toJson(philipsHueObject));
-
             Map<String, Object> lightsObject = (Map<String, Object>) philipsHueObject.get("lights");
             Map<String, Object> sensorsObject = (Map<String, Object>) philipsHueObject.get("sensors");
 
             for (Map.Entry<String, Object> lightEntry : lightsObject.entrySet()) {
                 Map<String, Object> lightObject = (Map<String, Object>) lightEntry.getValue();
+                LOGGER.info(gson.toJson(lightObject));
                 String type = (String) lightObject.get("type");
                 if ("Extended color light".equals(type)) {
                     String resource_id = lightEntry.getKey();
