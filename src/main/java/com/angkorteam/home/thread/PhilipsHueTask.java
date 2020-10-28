@@ -16,11 +16,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class PhilipsHueTask implements Runnable {
-
-    public static final String NAME = "philips-hue.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PhilipsHueTask.class);
 
@@ -54,7 +53,9 @@ public class PhilipsHueTask implements Runnable {
         try (CloseableHttpResponse response = client.execute(requestBuilder.build())) {
             Type objectType = new TypeToken<Map<String, Object>>() {
             }.getType();
-            Map<String, Object> philipsHueObject = gson.fromJson(EntityUtils.toString(response.getEntity()), objectType);
+            Map<String, Object> philipsHueObject = gson.fromJson(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8), objectType);
+
+            LOGGER.info(gson.toJson(philipsHueObject));
 
             Map<String, Object> lightsObject = (Map<String, Object>) philipsHueObject.get("lights");
             Map<String, Object> sensorsObject = (Map<String, Object>) philipsHueObject.get("sensors");
