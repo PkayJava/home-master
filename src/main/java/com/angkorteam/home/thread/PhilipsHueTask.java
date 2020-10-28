@@ -82,7 +82,7 @@ public class PhilipsHueTask implements Runnable {
                     String state_alert = (String) ((Map<String, Object>) lightObject.get("state")).get("alert");
                     String state_color_mode = (String) ((Map<String, Object>) lightObject.get("state")).get("colormode");
                     String state_mode = (String) ((Map<String, Object>) lightObject.get("state")).get("mode");
-                    String state_reachable = (String) ((Map<String, Object>) lightObject.get("state")).get("reachable");
+                    boolean state_reachable = (boolean) ((Map<String, Object>) lightObject.get("state")).get("reachable");
 
                     SelectQuery selectQuery = new SelectQuery("tbl_extended_color_light");
                     selectQuery.addField("COUNT(unique_id)");
