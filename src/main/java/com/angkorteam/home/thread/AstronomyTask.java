@@ -121,7 +121,7 @@ public class AstronomyTask implements Runnable {
                     params.put("moonset", astronomy.getMoonset() + ":00");
                 }
                 params.put("moon_status", astronomy.getMoonStatus());
-                params.put("location", astronomy.getLocation());
+                params.put("location", astronomy.getLocation().getLocation());
                 named.update("UPDATE tbl_astronomy SET sunrise = :sunrise, sunset = :sunset, sun_status = :sun_status, moonrise = :moonrise, moonset = :moonset, moon_status = :moon_status, location = :location WHERE astronomy_date = :astronomy_date", params);
             }
         } catch (IOException e) {
