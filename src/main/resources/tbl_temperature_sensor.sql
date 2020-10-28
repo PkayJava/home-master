@@ -8,8 +8,8 @@ CREATE TABLE tbl_temperature_sensor (
     software_version       VARCHAR(200)  NULL,
     resource_id            VARCHAR(5)    NOT NULL,
 
-    state_temperature      INT(11)       NOT NULL,
-    state_last_updated     DATETIME      NOT NULL,
+    state_temperature      INT(11)       NULL,
+    state_last_updated     DATETIME      NULL,
 
     config_on              TINYINT(1)    NOT NULL,
     config_battery         INT(11)       NOT NULL,

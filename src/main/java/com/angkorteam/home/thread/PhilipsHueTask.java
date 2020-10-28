@@ -176,8 +176,8 @@ public class PhilipsHueTask implements Runnable {
                 String product_name = (String) sensorObject.get("productname");
                 String software_version = (String) sensorObject.get("swversion");
 
-                int state_temperature = (int) (double) ((Map<String, Object>) sensorObject.get("state")).get("temperature");
-                String state_last_updated = (String) ((Map<String, Object>) sensorObject.get("state")).get("lastupdated");
+                Integer state_temperature = ((Map<String, Object>) sensorObject.get("state")).get("temperature") == null ? null : (int) (double) ((Map<String, Object>) sensorObject.get("state")).get("temperature");
+                String state_last_updated = ((Map<String, Object>) sensorObject.get("state")).get("lastupdated") == null || "none".equals(((Map<String, Object>) sensorObject.get("state")).get("lastupdated")) ? null : (String) ((Map<String, Object>) sensorObject.get("state")).get("lastupdated");
 
                 boolean config_on = (boolean) ((Map<String, Object>) sensorObject.get("config")).get("on");
                 int config_battery = (int) (double) ((Map<String, Object>) sensorObject.get("config")).get("battery");
@@ -217,7 +217,7 @@ public class PhilipsHueTask implements Runnable {
                     insertQuery.addValue("product_name = :product_name", product_name);
 
                     insertQuery.addValue("state_temperature = :state_temperature", state_temperature);
-                    insertQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    insertQuery.addValue("state_last_updated = :state_last_updated", state_last_updated == null ? null : DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
 
                     insertQuery.addValue("config_on = :config_on", config_on);
                     insertQuery.addValue("config_battery = :config_battery", config_battery);
@@ -242,7 +242,7 @@ public class PhilipsHueTask implements Runnable {
                     updateQuery.addValue("product_name = :product_name", product_name);
 
                     updateQuery.addValue("state_temperature = :state_temperature", state_temperature);
-                    updateQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    updateQuery.addValue("state_last_updated = :state_last_updated", state_last_updated == null ? null : DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
 
                     updateQuery.addValue("config_on = :config_on", config_on);
                     updateQuery.addValue("config_battery = :config_battery", config_battery);
@@ -260,10 +260,10 @@ public class PhilipsHueTask implements Runnable {
                 String product_name = (String) sensorObject.get("productname");
                 String software_version = (String) sensorObject.get("swversion");
 
-                int state_light_level = (int) (double) ((Map<String, Object>) sensorObject.get("state")).get("lightlevel");
-                boolean state_dark = (boolean) ((Map<String, Object>) sensorObject.get("state")).get("dark");
-                boolean state_daylight = (boolean) ((Map<String, Object>) sensorObject.get("state")).get("daylight");
-                String state_last_updated = (String) ((Map<String, Object>) sensorObject.get("state")).get("lastupdated");
+                Integer state_light_level = ((Map<String, Object>) sensorObject.get("state")).get("lightlevel") == null ? null : (int) (double) ((Map<String, Object>) sensorObject.get("state")).get("lightlevel");
+                Boolean state_dark = (Boolean) ((Map<String, Object>) sensorObject.get("state")).get("dark");
+                Boolean state_daylight = (Boolean) ((Map<String, Object>) sensorObject.get("state")).get("daylight");
+                String state_last_updated = ((Map<String, Object>) sensorObject.get("state")).get("lastupdated") == null || "none".equals(((Map<String, Object>) sensorObject.get("state")).get("lastupdated")) ? null : (String) ((Map<String, Object>) sensorObject.get("state")).get("lastupdated");
 
                 boolean config_on = (boolean) ((Map<String, Object>) sensorObject.get("config")).get("on");
                 int config_battery = (int) (double) ((Map<String, Object>) sensorObject.get("config")).get("battery");
@@ -305,9 +305,9 @@ public class PhilipsHueTask implements Runnable {
                     insertQuery.addValue("product_name = :product_name", product_name);
 
                     insertQuery.addValue("state_light_level = :state_light_level", state_light_level);
-                    insertQuery.addValue("state_dark = :state_dark", state_dark);
-                    insertQuery.addValue("state_daylight = :state_daylight", state_daylight);
-                    insertQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    insertQuery.addValue("state_dark = :state_dark", state_dark != null && state_dark);
+                    insertQuery.addValue("state_daylight = :state_daylight", state_daylight != null && state_daylight);
+                    insertQuery.addValue("state_last_updated = :state_last_updated", state_last_updated == null ? null : DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
 
                     insertQuery.addValue("config_on = :config_on", config_on);
                     insertQuery.addValue("config_battery = :config_battery", config_battery);
@@ -336,7 +336,7 @@ public class PhilipsHueTask implements Runnable {
                     updateQuery.addValue("state_light_level = :state_light_level", state_light_level);
                     updateQuery.addValue("state_dark = :state_dark", state_dark);
                     updateQuery.addValue("state_daylight = :state_daylight", state_daylight);
-                    updateQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    updateQuery.addValue("state_last_updated = :state_last_updated", state_last_updated == null ? null : DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
 
                     updateQuery.addValue("config_on = :config_on", config_on);
                     updateQuery.addValue("config_battery = :config_battery", config_battery);
@@ -356,8 +356,8 @@ public class PhilipsHueTask implements Runnable {
                 String product_name = (String) sensorObject.get("productname");
                 String software_version = (String) sensorObject.get("swversion");
 
-                boolean state_presence = (boolean) ((Map<String, Object>) sensorObject.get("state")).get("presence");
-                String state_last_updated = (String) ((Map<String, Object>) sensorObject.get("state")).get("lastupdated");
+                Boolean state_presence = (Boolean) ((Map<String, Object>) sensorObject.get("state")).get("presence");
+                String state_last_updated = ((Map<String, Object>) sensorObject.get("state")).get("lastupdated") == null || "none".equals(((Map<String, Object>) sensorObject.get("state")).get("lastupdated")) ? null : (String) ((Map<String, Object>) sensorObject.get("state")).get("lastupdated");
 
                 boolean config_on = (boolean) ((Map<String, Object>) sensorObject.get("config")).get("on");
                 int config_battery = (int) (double) ((Map<String, Object>) sensorObject.get("config")).get("battery");
@@ -401,7 +401,7 @@ public class PhilipsHueTask implements Runnable {
                     insertQuery.addValue("product_name = :product_name", product_name);
 
                     insertQuery.addValue("state_presence = :state_presence", state_presence);
-                    insertQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    insertQuery.addValue("state_last_updated = :state_last_updated", state_last_updated == null ? null : DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
 
                     insertQuery.addValue("config_on = :config_on", config_on);
                     insertQuery.addValue("config_battery = :config_battery", config_battery);
@@ -428,7 +428,7 @@ public class PhilipsHueTask implements Runnable {
                     updateQuery.addValue("product_name = :product_name", product_name);
 
                     updateQuery.addValue("state_presence = :state_presence", state_presence);
-                    updateQuery.addValue("state_last_updated = :state_last_updated", DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
+                    updateQuery.addValue("state_last_updated = :state_last_updated", state_last_updated == null ? null : DateUtils.parseDate(state_last_updated + "+00:00", "yyyy-MM-dd'T'HH:mm:ssZZ"));
 
                     updateQuery.addValue("config_on = :config_on", config_on);
                     updateQuery.addValue("config_battery = :config_battery", config_battery);
